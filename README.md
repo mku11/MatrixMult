@@ -10,3 +10,30 @@ The current implementation differs from the above tutorials/designs:
 4. kernel 2 and 3 transposes matrix A instead of B  
 5. kernel 3 uses padding to fit all blocks  
   
+
+```
+// Sample code
+
+// dimension sizes
+int M=128, K=128, N=128;
+
+// allocate buffers
+float* a = (float*) malloc(M * K * sizeof(float));
+float* b = (float*) malloc(K * N * sizeof(float));
+float* c = (float*) malloc(M * N * sizeof(float));
+
+// populate the buffers somewhere here
+
+// matrix multiplication using opencl with tiling (fast)
+openclMatMultBlock(M, K, N, a, b, c);
+
+// matrix multiplication using opencl uses transpose internally with tiling
+openclMatMultTilingColMajor(M, K, N, a, b, c);
+
+// matrix multiplication using opencl uses transpose internally with tiling
+// uses padding so M, N, K will be multiples of tile dimensions in expense of allocating more memory
+openclMatMultTilingColMajorPadded(M, K, N, a, b, c);
+
+// free your buffers when not needed
+	
+```
