@@ -22,15 +22,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef __OPENCL_MATMULT_H
-#define __OPENCL_MATMULT_H
+#ifndef __MATMULT_H
+#define __MATMULT_H
+// simple mult
+void mult(int M, int K, int N, float* a, float* b, float* c);
 
-void init_opencl();
-void close_opencl();
+// swapped inner loops
+void multSwapLoops(int M, int K, int N, float* a, float* b, float* c);
 
-void openclMatMult(int m, int k, int n, float* a, float* b, float* c);
-void openclMatMultBlock(int m, int k, int n, float* A, float* B, float* c);
-void openclMatMultTilingColMajor(int m, int k, int n, float* A, float* B, float* c);
-void openclMatMultTilingColMajorPadded(int m, int k, int n, float* a, float* b, float* c);
+// convert second matrix to rowmajor by transposing
+void multRowMajor(int M, int K, int N, float* a, float* b, float* c);
 
-#endif
+#endif // __MATMULT_H

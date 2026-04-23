@@ -49,3 +49,27 @@ openclMatMultTilingColMajorPadded(M, K, N, a, b, c);
 // free your buffers when not needed
 	
 ```
+
+## Build
+
+To build the libraries and tests with CMake  
+Edit CMakeLists and update the paths to OpenCL library.  
+Or you can optionally use -D options to pass specific paths: ie: -DOPENCL_INCLUDE=/path/to/headers  
+Linux/MacOS/Cygwin:  
+```
+cmake -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE --no-warn-unused-cli -S . -B ./build -G "Unix Makefiles"
+cmake --build ./build --config Debug --target all -j 4 --
+```
+
+Windows (Edit the generator to use specific Visual Studio version):  
+```
+cmake.exe -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE --no-warn-unused-cli -S . -B ./build -G "Visual Studio 17 2022" -T host=x86 -A x64 
+cmake.exe --build ./build --config Debug --target all -j 4 --
+```
+
+## Run
+make sure you update LD_LIBRARY_PATH before execution
+```
+cd build/Debug 
+./tests
+```

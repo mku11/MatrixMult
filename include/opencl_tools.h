@@ -22,15 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef __MATMULT_H
-#define __MATMULT_H
-// simple mult
-void mult(int M, int K, int N, float* a, float* b, float* c);
+#ifndef __OPENCL_TOOLS_H
+#define __OPENCL_TOOLS_H
 
-// swapped inner loops
-void multSwapLoops(int M, int K, int N, float* a, float* b, float* c);
+#include <CL/opencl.h>
+#include "mat_tools.h"
 
-// convert second matrix to rowmajor by transposing
-void multRowMajor(int M, int K, int N, float* a, float* b, float* c);
+#define MAX_PLATFORMS 8
+#define MAX_DEVICES 8
+#define MAX_CHARS 1024
+#define MAX_SOURCE_SIZE (0x100000)
 
-#endif
+void displayDevice(cl_device_id device_id);
+void displayDevices(cl_platform_id cpPlatform);
+void displayPlatforms();
+void initPlatforms();
+int getWorkgroupSize(cl_kernel kernel, cl_device_id device_id);
+int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims);
+long getMaxSharedMemSize();
+void add_kernel_defines(char *source_str, TileParams tile_params);
+void add_kernel_transpose_defines(char *source_str, int TRANSPOSEX, int TRANSPOSEY);
+int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel_name, cl_device_id device_id, TileParams tile_params);
+
+#endif // __OPENCL_TOOLS_H

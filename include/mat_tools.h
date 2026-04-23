@@ -33,19 +33,37 @@ SOFTWARE.
 #define DISPLAY_INT false
 #define MAX_DISPLAY_LEN 8
 
-typedef enum GenType {
-	GEN_RAND = 1,
-	GEN_CONSTANT = 2,
-	GEN_INCR = 3,
-} GenType;
+typedef struct TileParams
+{
+    int BM;
+    int BN;
+    int BK;
+    int WIM;
+    int WIN;
+} TileParams;
 
-float* create(int sizeA, int sizeB, float val);
-void transpose(int sizeA, int sizeB, float* mat, int sizeA2, int sizeB2, float* mat2);
-void copy_mat(int sizeA1, int sizeB1, float* mat1, int sizeA2, int sizeB2, float *mat2, int lengthA, int lengthB);
-void assert_mat_equal(int sizeA, int sizeB, float* mat1, float* mat2);
-void print_matrix(const char* header, float* m, int rows, int cols);
-void validate_tiling(int BM, int BN, int BK, int WIM, int WIN, int max_local_size);
-void gen(GenType genType, float* mat, int M, int N);
-int rand_int(int min, int max);
+typedef struct MatMultDims
+{
+    int m;
+    int k;
+    int n;
+} MatMultDims;
+
+typedef struct MatTransposeDims
+{
+    int m;
+    int n;
+    int tm; // transposed m
+    int tn; // transposed n
+} MatTransposeDims;
+
+float *create(int sizeA, int sizeB, float val);
+void transpose(MatTransposeDims dims, float *mat, float *mat2);
+void copy_mat(int sizeA1, int sizeB1, float *mat1, int sizeA2, int sizeB2, float *mat2, int lengthA, int lengthB);
+void assert_mat_equal(int sizeA, int sizeB, float *mat1, float *mat2);
+void print_matrix(const char *header, float *m, int rows, int cols);
+void validate_tiling(TileParams tile_params, int max_local_size);
+void set_default_tiling_params(TileParams *tile_params);
+void set_pref_tiling_params(MatMultDims dims, long max_local_size, TileParams *tile_params);
 time_t gettime();
-#endif
+#endif // __MAT_TOOLS_H

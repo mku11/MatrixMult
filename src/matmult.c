@@ -50,7 +50,12 @@ void multSwapLoops(int M, int K, int N, float* a, float* b, float* c) {
 // convert second matrix to rowmajor by transposing
 void multRowMajor(int M, int K, int N, float* a, float* b, float* c) {
 	float* bt = create(K, N, 0);
-	transpose(K, N, b, K, N, bt);
+	MatTransposeDims transpose_dims;
+	transpose_dims.m = K;
+	transpose_dims.n = N;
+	transpose_dims.tm = K;
+	transpose_dims.tn = N;
+	transpose(transpose_dims, a, bt);
 	for(int i=0; i<M; i++) {
 		for(int j=0; j<N; j++) {
 			for(int k=0; k<K; k++) {

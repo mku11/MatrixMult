@@ -1,6 +1,7 @@
+/*
 MIT License
 
-Copyright (c) 2026 Max Kas
+Copyright (c) 2024 Max Kas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +20,31 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "test_tools.h"
+
+int rand_int(int min, int max) {
+	if(min == max)
+		return min;
+	return min + rand() % (max + 1 - min);
+}
+
+void gen(GenType genType, float* mat, int M, int N) {
+	int k =0;
+	for(int i=0; i<M; i++) {
+		for(int j=0; j<N; j++) {
+			if(genType == GEN_RAND)
+				*(mat + i*N + j) = rand() % 10;
+			else if(genType == GEN_CONSTANT)
+				*(mat + i*N + j) = j;
+			else if(genType == GEN_INCR)
+				*(mat + i*N + j) = k++;
+		}
+	}
+}

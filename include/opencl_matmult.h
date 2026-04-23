@@ -22,24 +22,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef __OPENCL_TOOLS_H
-#define __OPENCL_TOOLS_H
+#ifndef __OPENCL_MATMULT_H
+#define __OPENCL_MATMULT_H
+#include <CL/opencl.h>
+#include <mat_tools.h>
 
-#include <CL/opencl.h> 
+void init_opencl();
+void close_opencl();
 
-#define MAX_PLATFORMS 8
-#define MAX_DEVICES 8
-#define MAX_CHARS 1024
-#define MAX_SOURCE_SIZE (0x100000)
+#define MatMultSimple 0
+#define MatMultTiling 1
+#define MatMultTilingColMaj 2
+#define MatMultTilingColMajPadded 3
 
-void displayDevice(cl_device_id device_id);
-void displayDevices(cl_platform_id cpPlatform);
-void displayPlatforms();
-void initPlatforms();
-int getWorkgroupSize(cl_kernel kernel, cl_device_id device_id);
-int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims);
-long getMaxSharedMemSize();
-void add_kernel_defines(char* source_str, int BM, int BN, int BK, int WPTM, int WPTN);
-void add_kernel_transpose_defines(char* source_str, int TRANSPOSEX, int TRANSPOSEY);
-
-#endif
+void openclMatMult(MatMultDims dims, float *a, float *b, float *c, int mult_type);
+void openclMatMultSimple(MatMultDims dims, float *a, float *b, float *c);
+void openclMatMultBlock(MatMultDims dims, float *A, float *B, float *c);
+void openclMatMultTilingColMajor(MatMultDims dims, float *A, float *B, float *c);
+void openclMatMultTilingColMajorPadded(MatMultDims dims, float *a, float *b, float *c);
+#endif // __OPENCL_MATMULT_H

@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+// #define DEBUG 1
+
 // tiling
 // matrix a needs to be in row major format (M*K)
 // matrix b needs to be in row major format (K*N)
@@ -34,6 +36,13 @@ __kernel void matmult_block(const int M, const int K, const int N,
 					const __global float* b,
 					__global float* c) {{
 
+#ifdef DEBUG
+	printf("thread: %d,%d / %d,%d, grp: %d,%d / %d,%d\n", 
+		get_local_id(0), get_local_id(1), get_local_size(0), get_local_size(1),
+		get_group_id(0), get_group_id(1), get_num_groups(0), get_num_groups(1)
+		);
+#endif
+	
     const int lclId0 = get_local_id(0);
     const int lclId1 = get_local_id(1);
 	

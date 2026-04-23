@@ -1,6 +1,7 @@
+/*
 MIT License
 
-Copyright (c) 2026 Max Kas
+Copyright (c) 2024 Max Kas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +20,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+*/
+
+#ifndef __TEST_TOOLS_H
+#define __TEST_TOOLS_H
+#include <time.h>
+
+#include <stdbool.h>
+
+typedef enum GenType {
+	GEN_RAND = 1,
+	GEN_CONSTANT = 2,
+	GEN_INCR = 3,
+} GenType;
+
+void gen(GenType genType, float* mat, int M, int N);
+int rand_int(int min, int max);
+#endif // __TEST_TOOLS_H
