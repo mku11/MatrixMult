@@ -45,13 +45,13 @@ void printUsage(char *exename);
 const enum GenType GEN_TYPE = GEN_INCR;
 
 // Default Dimensions
-// int M = 512*10+42;
-// int K = 512*10+66;
-// int N = 512*10+1;
+int M = 512 * 10 + 42;
+int K = 512 * 10 + 66;
+int N = 512 * 10 + 1;
 // Even - no padding
-int M = 512*10;
-int K = 512*10;
-int N = 512*10;
+// int M = 512*8;
+// int K = 512*8;
+// int N = 512*8;
 // Small
 // int M = 512+42;
 // int K = 512+66;
@@ -68,11 +68,12 @@ bool validate_results = false;
 // bool validate_results = true;
 
 bool use_simple_matmult = false;
-// bool use_simple_matmult = true;
+bool use_tiling_matmult = true;
+bool use_tiling_colmaj_matmult = false;
+bool use_tiling_colmaj_padded_matmult= false;
 
 bool print_mat = false;
 bool enable_log = false;
-
 
 int main(int argc, char *argv[])
 {
@@ -128,44 +129,53 @@ void run_matmult(MatMultDims dims, float *a, float *b, float *c)
 	}
 
 	// opencl no transpose with tiling (fast)
-	printf("\nrunning opencl matmult w/ tiling\n");
-	openclMatMult(dims, a, b, c, MatMultTiling);
-	if (print_mat)
+	if (use_tiling_matmult)
 	{
-		print_matrix("opencl matmult w/ tiling c", c, dims.m, dims.n);
+		printf("\nrunning opencl matmult w/ tiling\n");
+		openclMatMult(dims, a, b, c, MatMultTiling);
+		if (print_mat)
+		{
+			print_matrix("opencl matmult w/ tiling c", c, dims.m, dims.n);
+		}
+		if (validate_results)
+		{
+			assert_mat_equal(dims.m, dims.n, c, res_mat);
+		}
+		memset(c, 0, sizeof(float) * dims.m * dims.n);
 	}
-	if (validate_results)
-	{
-		assert_mat_equal(dims.m, dims.n, c, res_mat);
-	}
-	memset(c, 0, sizeof(float) * dims.m * dims.n);
 
 	// opencl col major a (transpose) with tiling (faster for small matrices)
-	printf("\nrunning opencl matmult w/ tiling and col major c\n");
-	openclMatMult(dims, a, b, c, MatMultTilingColMaj);
-	if (print_mat)
+	if (use_tiling_colmaj_matmult)
 	{
-		print_matrix("opencl matmult w/ tiling and col major c", c, dims.m, dims.n);
+		printf("\nrunning opencl matmult w/ tiling and col major c\n");
+		openclMatMult(dims, a, b, c, MatMultTilingColMaj);
+		if (print_mat)
+		{
+			print_matrix("opencl matmult w/ tiling and col major c", c, dims.m, dims.n);
+		}
+		if (validate_results)
+		{
+			assert_mat_equal(dims.m, dims.n, c, res_mat);
+		}
+		memset(c, 0, sizeof(float) * dims.m * dims.n);
 	}
-	if (validate_results)
-	{
-		assert_mat_equal(dims.m, dims.n, c, res_mat);
-	}
-	memset(c, 0, sizeof(float) * dims.m * dims.n);
 
 	// opencl col major a with tiling (fastest) all matrices need to be padded
 	// so dims can be multiple of M, N, K in expense of even more memory
-	printf("\nrunning opencl matmult w/ tiling and col major c and padded\n");
-	openclMatMult(dims, a, b, c, MatMultTilingColMajPadded);
-	if (print_mat)
+	if (use_tiling_colmaj_padded_matmult)
 	{
-		print_matrix("opencl matmult tiling col major and padding c", c, dims.m, dims.n);
+		printf("\nrunning opencl matmult w/ tiling and col major c and padded\n");
+		openclMatMult(dims, a, b, c, MatMultTilingColMajPadded);
+		if (print_mat)
+		{
+			print_matrix("opencl matmult tiling col major and padding c", c, dims.m, dims.n);
+		}
+		if (validate_results)
+		{
+			assert_mat_equal(dims.m, dims.n, c, res_mat);
+		}
+		memset(c, 0, sizeof(float) * dims.m * dims.n);
 	}
-	if (validate_results)
-	{
-		assert_mat_equal(dims.m, dims.n, c, res_mat);
-	}
-	memset(c, 0, sizeof(float) * dims.m * dims.n);
 
 	if (validate_results)
 	{
