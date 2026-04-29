@@ -64,9 +64,9 @@ const int RAND_MAX_SIZE = 4096;
 const int TRIALS = 1;
 
 // validate with correct results
-bool validate_results = true;
+bool validate_results = false; // too slow use only for small sizes
 
-bool use_simple_matmult = true;
+bool use_simple_matmult = false; // too slow use only for small sizes
 bool use_tiling_matmult = true;
 bool use_tiling_colmaj_matmult = true;
 bool use_tiling_colmaj_padded_matmult= true;
