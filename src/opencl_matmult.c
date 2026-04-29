@@ -339,20 +339,22 @@ int cl_mult(char *kernel_file, char *kernel_name,
 	fclose(cl_code);
 
 	int local_size = default_local_size;
-	if (use_optimal_local_size)
+	if (use_tiling && use_optimal_local_size)
 	{
 		// TODO: this has overhead which is more noticable with small matrixes
 		local_size = get_kernel_max_local_size(context, source_str, kernel_name, device_id, *tile_params, dims);
 	}
 
+	add_kernel_mult_defines(source_str, dims);
 	if (use_tiling)
 	{
 		if (use_optimal_params)
 		{
 			set_pref_tiling_params(dims, local_size, tile_params);
 		}
-		add_kernel_defines(source_str, *tile_params, dims);
+		add_kernel_tiling_defines(source_str, *tile_params);
 	}
+
 	// printf("mult kernel\r\n%s:", source_str);
 
 	// Create the compute program from the source buffer
@@ -563,6 +565,8 @@ int cl_transpose(char *kernel_file, char *kernel_name,
 	int res = fread(source_str, 1, MAX_SOURCE_SIZE, cl_code);
 	fclose(cl_code);
 
+	add_kernel_transpose_defines(source_str, dims);
+
 	// printf("transpose kernel\r\n%s:", source_str);
 
 	// Create the compute program from the source buffer
@@ -607,11 +611,7 @@ int cl_transpose(char *kernel_file, char *kernel_name,
 
 	// Set the arguments to our compute kernel
 	int param = 0;
-	err = clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.m);
-	err |= clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.n);
-	err |= clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.tm);
-	err |= clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.tn);
-	err |= clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_a);
+	err = clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_a);
 	err |= clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_at);
 	if (err != CL_SUCCESS)
 	{

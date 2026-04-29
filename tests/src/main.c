@@ -45,9 +45,17 @@ void printUsage(char *exename);
 const enum GenType GEN_TYPE = GEN_INCR;
 
 // Default Dimensions
-int M = 512*10+42;
-int K = 512*10+66;
-int N = 512*10+1;
+// int M = 512*10+42;
+// int K = 512*10+66;
+// int N = 512*10+1;
+// Even - no padding
+int M = 512*10;
+int K = 512*10;
+int N = 512*10;
+// Small
+// int M = 512+42;
+// int K = 512+66;
+// int N = 512+1;
 // Or use random sizes
 bool USE_RAND_SIZES = false;
 const int RAND_MIN_SIZE = 128;

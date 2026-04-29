@@ -43,7 +43,10 @@ long getMaxSharedMemSize();
 int cl_mult(char *kernel_file, char *kernel_name,
             MatMultDims dims, float *a, float *b, float *c, cl_mem d_at,
             bool use_tiling, TileParams *tile_params);
-void add_kernel_transpose_defines(char *source_str, int TRANSPOSEX, int TRANSPOSEY);
+
+void add_kernel_tiling_defines(char *source_str, TileParams tile_params);
+void add_kernel_mult_defines(char *source_str, MatMultDims dims);
+void add_kernel_transpose_defines(char *source_str, MatTransposeDims transpose_dims);
 int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel_name, cl_device_id device_id,
                               TileParams tile_params, MatMultDims dims);
 

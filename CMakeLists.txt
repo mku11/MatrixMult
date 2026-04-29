@@ -43,7 +43,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 # optimize (do not use 03 it is not parsed for MSVC compiler)
-# set(CMAKE_C_FLAGS_DEBUG "-O2")
+set(CMAKE_C_FLAGS_DEBUG "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
 set(CMAKE_C_FLAGS_DEBUG " ${CMAKE_C_FLAGS_DEBUG} ${VERBOSE_FLAG}")
@@ -126,7 +126,7 @@ set(MATMUL_TEST_INC_DIR "${CMAKE_CURRENT_LIST_DIR}/tests/include")
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # optimize (do not use 03 it is not parsed for MSVC compiler)
-# set(CMAKE_C_FLAGS_DEBUG "-O2")
+set(CMAKE_C_FLAGS_DEBUG "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
 # set c++ standard for gcc

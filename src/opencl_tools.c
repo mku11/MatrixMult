@@ -200,7 +200,7 @@ int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims)
 	return (int)pow(maxWorkGroupSize, 1.0f / dims);
 }
 
-void add_kernel_defines(char *source_str, TileParams tile_params, MatMultDims dims)
+void add_kernel_tiling_defines(char *source_str, TileParams tile_params)
 {
 	char *source_defines_str = (char *)malloc(6 * 1024 * sizeof(char));
 
@@ -212,9 +212,6 @@ void add_kernel_defines(char *source_str, TileParams tile_params, MatMultDims di
 	// printf("BM: %d, BN: %d, BK: %d, WIM: %d, WIN: %d, WIA_SiZE: %d, WIB_SIZE: %d\n",
 	// BM, BN, BK, WIM, WIN, WIA_SIZE, WIB_SIZE);
 	sprintf(source_defines_str,
-			"#define M %d // size a\r\n"
-			"#define N %d // size n\r\n"
-			"#define K %d // size k\r\n"
 			"#define BM %d // block a height\r\n"
 			"#define BN %d // block b width\r\n"
 			"#define BK %d // block a width, b height\r\n"
@@ -223,9 +220,40 @@ void add_kernel_defines(char *source_str, TileParams tile_params, MatMultDims di
 			"#define WIA_SIZE %d // Work item a size\r\n"
 			"#define WIB_SIZE %d // Work item b size\r\n"
 			"\r\n",
-			dims.m, dims.n, dims.k,
 			tile_params.BM, tile_params.BN, tile_params.BK, 
 			tile_params.WIM, tile_params.WIN, WIA_SIZE, WIB_SIZE);
+	size_t len = strlen(source_defines_str);
+	memmove(source_str + len, source_str, strlen(source_str) + 1);
+	memcpy(source_str, source_defines_str, len);
+	strcat(source_str, "\0");
+	free(source_defines_str);
+}
+
+void add_kernel_mult_defines(char *source_str, MatMultDims dims)
+{
+	char *source_defines_str = (char *)malloc(6 * 1024 * sizeof(char));
+	sprintf(source_defines_str,
+			"#define M %d // size m\r\n"
+			"#define N %d // size n\r\n"
+			"#define K %d // size k\r\n"
+			"\r\n",
+			dims.m, dims.n, dims.k);
+	size_t len = strlen(source_defines_str);
+	memmove(source_str + len, source_str, strlen(source_str) + 1);
+	memcpy(source_str, source_defines_str, len);
+	strcat(source_str, "\0");
+	free(source_defines_str);
+}
+
+void add_kernel_transpose_defines(char *source_str, MatTransposeDims dims) {
+	char *source_defines_str = (char *)malloc(6 * 1024 * sizeof(char));
+	sprintf(source_defines_str,
+			"#define M %d // size m\r\n"
+			"#define K %d // size K\r\n"
+			"#define K2 %d // transposed size K2\r\n"
+			"#define M2 %d // trnasposed size M2\r\n"
+			"\r\n",
+			dims.m, dims.n, dims.tm, dims.tn);
 	size_t len = strlen(source_defines_str);
 	memmove(source_str + len, source_str, strlen(source_str) + 1);
 	memcpy(source_str, source_defines_str, len);
@@ -244,7 +272,8 @@ int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel
 
 	strcpy(kernel_src, source_str);
 	strcat(kernel_src, "\0");
-	add_kernel_defines(kernel_src, tile_params, dims);
+	add_kernel_tiling_defines(kernel_src, tile_params);
+	add_kernel_mult_defines(kernel_src, dims);
 
 	// printf("tuning mult kernel\r\n%s\r\n:", kernel_src);
 
