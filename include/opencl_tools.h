@@ -40,6 +40,7 @@ void initPlatforms();
 int getWorkgroupSize(cl_kernel kernel, cl_device_id device_id);
 int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims);
 long getMaxSharedMemSize();
+void printBuildError(cl_device_id device_id, cl_program program);
 int cl_mult(char *kernel_file, char *kernel_name,
             MatMultDims dims, float *a, float *b, float *c, cl_mem d_at,
             bool use_tiling, TileParams *tile_params);

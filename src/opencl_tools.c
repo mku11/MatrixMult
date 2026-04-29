@@ -200,6 +200,24 @@ int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims)
 	return (int)pow(maxWorkGroupSize, 1.0f / dims);
 }
 
+void printBuildError(cl_device_id device_id, cl_program program)
+{
+	// Determine the size of the log
+	size_t log_size;
+	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
+
+	// Allocate memory for the log
+	char *log = (char *)malloc(log_size);
+
+	// Get the log
+	clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
+
+	// Print the log
+	printf("%s\n", log);
+
+	free(log);
+}
+
 void add_kernel_tiling_defines(char *source_str, TileParams tile_params)
 {
 	char *source_defines_str = (char *)malloc(6 * 1024 * sizeof(char));
