@@ -202,7 +202,7 @@ void openclMatMultTilingColMajorPadded(MatMultDims dims, float *a, float *b, flo
 
 	float *aTpadded = create(paddedk, paddedm, 0);
 	cl_mem d_at = NULL;
-	int padded_size = dims.k * dims.m * sizeof(*aTpadded);
+	int padded_size = paddedk * paddedm * sizeof(*aTpadded);
 	MatTransposeDims transpose_dims;
 	transpose_dims.m = dims.m;
 	transpose_dims.n = dims.k;
@@ -220,8 +220,7 @@ void openclMatMultTilingColMajorPadded(MatMultDims dims, float *a, float *b, flo
 			clFinish(queue);
 			// Read the results from the device
 			cl_event event;
-			int read_size = dims.k * dims.m * sizeof(*aTpadded);
-			clEnqueueReadBuffer(queue, d_at, CL_TRUE, 0, read_size, aTpadded, 0, NULL, &event);
+			clEnqueueReadBuffer(queue, d_at, CL_TRUE, 0, padded_size, aTpadded, 0, NULL, &event);
 			clWaitForEvents(1, &event);
 			clFinish(queue);
 
@@ -343,7 +342,7 @@ int cl_mult(char *kernel_file, char *kernel_name,
 	if (use_optimal_local_size)
 	{
 		// TODO: this has overhead which is more noticable with small matrixes
-		local_size = get_kernel_max_local_size(context, source_str, kernel_name, device_id, *tile_params);
+		local_size = get_kernel_max_local_size(context, source_str, kernel_name, device_id, *tile_params, dims);
 	}
 
 	if (use_tiling)
@@ -352,7 +351,7 @@ int cl_mult(char *kernel_file, char *kernel_name,
 		{
 			set_pref_tiling_params(dims, local_size, tile_params);
 		}
-		add_kernel_defines(source_str, *tile_params);
+		add_kernel_defines(source_str, *tile_params, dims);
 	}
 	// printf("mult kernel\r\n%s:", source_str);
 
@@ -444,10 +443,7 @@ int cl_mult(char *kernel_file, char *kernel_name,
 	printf("setting kernel args\n");
 	// Set the arguments to our compute kernel
 	int param = 0;
-	err = clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.m);
-	err |= clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.k);
-	err |= clSetKernelArg(kernel, param++, sizeof(int), (void *)&dims.n);
-	err |= clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_a);
+	err = clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_a);
 	err |= clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_b);
 	err |= clSetKernelArg(kernel, param++, sizeof(cl_mem), (void *)&d_c);
 	if (err != CL_SUCCESS)

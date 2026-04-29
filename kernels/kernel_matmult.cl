@@ -26,7 +26,7 @@ SOFTWARE.
 // matrix a needs to be in row major format (M*K)
 // matrix b needs to be in row major format (K*N)
 // matrix c will be in row major format (M*N)
-__kernel void matmult_simple(const int M, const int K, const int N,
+__kernel void matmult_simple(
                       const __global float* a,
                       const __global float* b,
                       __global float* c) {{

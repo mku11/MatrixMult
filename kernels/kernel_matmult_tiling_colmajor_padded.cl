@@ -30,7 +30,7 @@ SOFTWARE.
 // block BB will be in row major format (BK*BN)
 // block BC will be in row major format (BM*BN)
 // Note: all matrices should be padded for dimensions to be multiples of M, N, K
-__kernel void matmult_block_colmajor_padded(const int M, const int K, const int N,
+__kernel void matmult_block_colmajor_padded(
 					const __global float* a,
 					const __global float* b,
 					__global float* c) {{

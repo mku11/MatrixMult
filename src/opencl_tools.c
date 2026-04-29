@@ -200,9 +200,9 @@ int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims)
 	return (int)pow(maxWorkGroupSize, 1.0f / dims);
 }
 
-void add_kernel_defines(char *source_str, TileParams tile_params)
+void add_kernel_defines(char *source_str, TileParams tile_params, MatMultDims dims)
 {
-	char *source_defines_str = (char *)malloc(4 * 1024 * sizeof(char));
+	char *source_defines_str = (char *)malloc(6 * 1024 * sizeof(char));
 
 	// size per work item for each submatrice: (size of submatrice tile) / (total size of a work group)
 	// total size of a work group: (size of output matrix) / (size of work item)
@@ -211,8 +211,10 @@ void add_kernel_defines(char *source_str, TileParams tile_params)
 
 	// printf("BM: %d, BN: %d, BK: %d, WIM: %d, WIN: %d, WIA_SiZE: %d, WIB_SIZE: %d\n",
 	// BM, BN, BK, WIM, WIN, WIA_SIZE, WIB_SIZE);
-
 	sprintf(source_defines_str,
+			"#define M %d // size a\r\n"
+			"#define N %d // size n\r\n"
+			"#define K %d // size k\r\n"
 			"#define BM %d // block a height\r\n"
 			"#define BN %d // block b width\r\n"
 			"#define BK %d // block a width, b height\r\n"
@@ -221,7 +223,9 @@ void add_kernel_defines(char *source_str, TileParams tile_params)
 			"#define WIA_SIZE %d // Work item a size\r\n"
 			"#define WIB_SIZE %d // Work item b size\r\n"
 			"\r\n",
-			tile_params.BM, tile_params.BN, tile_params.BK, tile_params.WIM, tile_params.WIN, WIA_SIZE, WIB_SIZE);
+			dims.m, dims.n, dims.k,
+			tile_params.BM, tile_params.BN, tile_params.BK, 
+			tile_params.WIM, tile_params.WIN, WIA_SIZE, WIB_SIZE);
 	size_t len = strlen(source_defines_str);
 	memmove(source_str + len, source_str, strlen(source_str) + 1);
 	memcpy(source_str, source_defines_str, len);
@@ -229,7 +233,8 @@ void add_kernel_defines(char *source_str, TileParams tile_params)
 	free(source_defines_str);
 }
 
-int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel_name, cl_device_id device_id, TileParams tile_params)
+int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel_name, cl_device_id device_id, 
+	TileParams tile_params, MatMultDims dims)
 {
 	cl_program program;
 	cl_int err;
@@ -239,7 +244,7 @@ int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel
 
 	strcpy(kernel_src, source_str);
 	strcat(kernel_src, "\0");
-	add_kernel_defines(kernel_src, tile_params);
+	add_kernel_defines(kernel_src, tile_params, dims);
 
 	// printf("tuning mult kernel\r\n%s\r\n:", kernel_src);
 

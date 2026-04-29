@@ -40,8 +40,11 @@ void initPlatforms();
 int getWorkgroupSize(cl_kernel kernel, cl_device_id device_id);
 int getMaxLocalSize(cl_kernel kernel, cl_device_id device_id, int dims);
 long getMaxSharedMemSize();
-void add_kernel_defines(char *source_str, TileParams tile_params);
+int cl_mult(char *kernel_file, char *kernel_name,
+            MatMultDims dims, float *a, float *b, float *c, cl_mem d_at,
+            bool use_tiling, TileParams *tile_params);
 void add_kernel_transpose_defines(char *source_str, int TRANSPOSEX, int TRANSPOSEY);
-int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel_name, cl_device_id device_id, TileParams tile_params);
+int get_kernel_max_local_size(cl_context context, char *source_str, char *kernel_name, cl_device_id device_id,
+                              TileParams tile_params, MatMultDims dims);
 
 #endif // __OPENCL_TOOLS_H

@@ -29,7 +29,7 @@ SOFTWARE.
 // block BA will be transposed in col major format (BK*BM)
 // block BB will be in row major format (BK*BN)
 // block BC will be in row major format (BM*BN)
-__kernel void matmult_block_colmajor(const int M, const int K, const int N,
+__kernel void matmult_block_colmajor(
 					const __global float* a,
 					const __global float* b,
 					__global float* c) {{
