@@ -39,8 +39,10 @@ void displayDevice(cl_device_id device_id)
 {
 	char device_vendor[MAX_CHARS];
 	char device_name[MAX_CHARS];
+	char device_extensions[MAX_CHARS];
 	cl_device_exec_capabilities execCaps;
 	cl_device_svm_capabilities svmCaps;
+	cl_device_fp_config fpConfig;
 	size_t max_work_group_size;
 	size_t max_compute_units;
 	size_t strSize = (sizeof(char) * MAX_CHARS);
@@ -81,41 +83,39 @@ void displayDevice(cl_device_id device_id)
 						  sizeof(max_compute_units), &max_compute_units, 0);
 	printf("max compute units: %d\n", (int)max_compute_units);
 
+	err = clGetDeviceInfo(device_id, CL_DEVICE_EXTENSIONS,
+						  strSize, device_extensions, &retSize);
+	printf("device extensions: %s\n", device_extensions);
+	if (strstr(device_extensions, "cl_khr_fp16") != NULL)
+	{
+		clGetDeviceInfo(device_id, CL_DEVICE_HALF_FP_CONFIG,
+						sizeof(fpConfig), &fpConfig, NULL);
+		printf("Device half fp config: %lu\n", (unsigned long)fpConfig);
+	}
+
 	err = clGetDeviceInfo(device_id, CL_DEVICE_EXECUTION_CAPABILITIES,
 						  sizeof(cl_device_exec_capabilities), &execCaps, 0);
-	printf("CL_DEVICE_EXECUTION_CAPABILITIES err: %d\n", err);
 	if (err == CL_SUCCESS)
 	{
 		if (execCaps & CL_EXEC_KERNEL)
 			printf("CL_EXEC_KERNEL: yes\n");
 		if (execCaps & CL_EXEC_NATIVE_KERNEL)
-			;
-		printf("CL_EXEC_NATIVE_KERNEL: yes\n");
-	}
-	else if (err == CL_INVALID_VALUE)
-	{
-		printf("CL_DEVICE_EXECUTION_CAPABILITIES CL_INVALID_VALUE\n");
+			printf("CL_EXEC_NATIVE_KERNEL: yes\n");
 	}
 
-	printf("cl_device_svm_capabilities size: %lld\n", sizeof(cl_device_svm_capabilities));
-	err = clGetDeviceInfo(device_id, CL_DEVICE_SVM_CAPABILITIES,
-						  sizeof(cl_device_svm_capabilities), &svmCaps, 0);
-	printf("CL_DEVICE_SVM_CAPABILITIES err: %d\n", err);
-	if (err == CL_SUCCESS)
+	err = clGetDeviceInfo(device_id, CL_DEVICE_SVM_CAPABILITIES, sizeof(svmCaps), &svmCaps, 0);
+
+	if (err != CL_SUCCESS)
 	{
-		printf("svmCaps: %d\n", (int)svmCaps);
-		if (svmCaps & CL_DEVICE_SVM_COARSE_GRAIN_BUFFER)
-			printf("CL_DEVICE_SVM_COARSE_GRAIN_BUFFER: yes\n");
-		if (svmCaps & CL_DEVICE_SVM_FINE_GRAIN_BUFFER)
-			printf("CL_DEVICE_SVM_FINE_GRAIN_BUFFER: yes\n");
-		if (svmCaps & CL_DEVICE_SVM_FINE_GRAIN_SYSTEM)
-			printf("CL_DEVICE_SVM_FINE_GRAIN_SYSTEM: yes\n");
-		if (svmCaps & CL_DEVICE_SVM_ATOMICS)
-			printf("CL_DEVICE_SVM_ATOMICS: yes\n");
+		printf("CL_DEVICE_SVM_CAPABILITIES: Not supported\n");
 	}
-	else if (err == CL_INVALID_VALUE)
+	else
 	{
-		printf("CL_DEVICE_SVM_CAPABILITIES CL_INVALID_VALUE\n");
+		printf("CL_DEVICE_SVM_CAPABILITIES: Supported\n");
+		printf("CL_DEVICE_SVM_COARSE_GRAIN_BUFFER: %s\n", (svmCaps & CL_DEVICE_SVM_COARSE_GRAIN_BUFFER) ? "yes" : "no");
+		printf("CL_DEVICE_SVM_FINE_GRAIN_BUFFER: %s\n", (svmCaps & CL_DEVICE_SVM_FINE_GRAIN_BUFFER) ? "yes" : "no");
+		printf("CL_DEVICE_SVM_FINE_GRAIN_SYSTEM: %s\n", (svmCaps & CL_DEVICE_SVM_FINE_GRAIN_SYSTEM) ? "yes" : "no");
+		printf("CL_DEVICE_SVM_ATOMICS: %s\n", (svmCaps & CL_DEVICE_SVM_ATOMICS) ? "yes" : "no");
 	}
 	printf("-------------------\n");
 }
@@ -157,11 +157,7 @@ void displayDevices(cl_platform_id cpPlatform)
 void displayPlatforms()
 {
 	cl_int err;
-	char driver_version[MAX_CHARS];
-	clGetDeviceInfo(0, CL_DRIVER_VERSION, sizeof(char *), &driver_version, NULL);
 	err = clGetPlatformIDs(MAX_PLATFORMS, platforms, &num_platforms);
-
-	printf("OpenCL driver version: %s\n", driver_version);
 	printf("platforms found: %d\n", num_platforms);
 
 	for (int i = 0; i < num_platforms; i++)
