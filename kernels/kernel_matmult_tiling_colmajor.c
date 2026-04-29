@@ -32,7 +32,7 @@ SOFTWARE.
 __kernel void matmult_block_colmajor(
 					const __global float* a,
 					const __global float* b,
-					__global float* c) {{
+					__global float* c) {
 
     const int lclId0 = get_local_id(0);
     const int lclId1 = get_local_id(1);
@@ -54,77 +54,77 @@ __kernel void matmult_block_colmajor(
 	__local float BB[BK][BN];
 	float BC[WIM][WIN];
 	#pragma unroll
-    for (int row=0; row<WIM; row++) {{
+    for (int row=0; row<WIM; row++) {
         #pragma unroll
-        for (int col=0; col<WIN; col++) {{
+        for (int col=0; col<WIN; col++) {
             BC[row][col] = 0.0f;
-        }}
-    }}
+        }
+    }
 	
-    for(int tile=0; tile<tiles; tile++) {{
+    for(int tile=0; tile<tiles; tile++) {
 		
 		int offseta = offsetm + BK*tile*M;
 		int row = offsetA / BM, col;
 		#pragma unroll
-		for(int idx=0; idx<WIA_SIZE; idx++) {{
+		for(int idx=0; idx<WIA_SIZE; idx++) {
 			col = (offsetA + idx) % BM;
-			if(idx>0 && col == 0) {{
+			if(idx>0 && col == 0) {
 				row++;
-			}}
+			}
 			if(offseta + M*row + col >= K*M)
 				break;
 			BA[row][col] = a[offseta + M*row + col];
-		}}
+		}
 		
 		int offsetb = offsetn + BK*tile*N;
 		row = offsetB / BN;
 		int offsetbb = offsetb + N*row;
 		#pragma unroll
-		for(int idx=0; idx<WIB_SIZE;idx++) {{
+		for(int idx=0; idx<WIB_SIZE;idx++) {
 			col = (offsetB + idx) % BN;
-			if(idx>0 && col == 0) {{ 
+			if(idx>0 && col == 0) { 
 				row++;
 				offsetbb = offsetb + N*row;
-			}}
-			if(offsetbb + col >= K*N) {{
+			}
+			if(offsetbb + col >= K*N) {
 				break;
-			}}
+			}
 			BB[row][col] = b[offsetbb + col];
-		}}
+		}
 
         barrier(CLK_LOCAL_MEM_FENCE);
 
 		// partial writes
 		const int maxK = K - BK*tile < BK ? K - BK*tile : BK;
 		
-		for(int ik=0; ik<BK; ik++) {{
+		for(int ik=0; ik<BK; ik++) {
 			#pragma unroll
-			for(int row=0; row<WIM; row++) {{
+			for(int row=0; row<WIM; row++) {
 				#pragma unroll	
-				for(int col=0; col<WIN; col++) {{
+				for(int col=0; col<WIN; col++) {
 					if(ik < maxK)
 						BC[row][col] += BA[ik][row + WIM*lclId0] * BB[ik][col + WIN*lclId1];
-				}}
-			}}
-		}}
+				}
+			}
+		}
 
         barrier(CLK_LOCAL_MEM_FENCE);
-    }}
+    }
     
 	
     const int cOffsetRow = offsetm + WIM*lclId0;
 	const int cOffsetCol = offsetn + WIN*lclId1;
 	
 	int idx = cOffsetRow*N + cOffsetCol;
-	if(cOffsetCol < N && cOffsetRow < M) {{
+	if(cOffsetCol < N && cOffsetRow < M) {
 		#pragma unroll
-		for(int row=0; row<WIM; row++) {{
+		for(int row=0; row<WIM; row++) {
 			#pragma unroll
-			for(int col=0; col<WIN; col++) {{
+			for(int col=0; col<WIN; col++) {
 				if((idx + row*N) % N + col >= N)
 					continue;
 				c[idx + row*N + col] = BC[row][col];
-			}}
-		}}
-	}}
-}}
+			}
+		}
+	}
+}

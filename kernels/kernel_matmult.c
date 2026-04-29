@@ -29,14 +29,14 @@ SOFTWARE.
 __kernel void matmult_simple(
                       const __global float* a,
                       const __global float* b,
-                      __global float* c) {{
+                      __global float* c) {
     const int row = get_global_id(0);
     const int col = get_global_id(1);
 	if(row >= M || col >= N)
 		return;
     float C = 0.0f;
-    for (int ik=0; ik<K; ik++) {{
+    for (int ik=0; ik<K; ik++) {
         C += a[row*K + ik] * b[ik*N + col];
-    }}
+    }
     c[row*N + col] = C;
-}}
+}

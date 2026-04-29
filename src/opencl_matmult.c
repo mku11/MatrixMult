@@ -577,7 +577,7 @@ int cl_transpose(char *kernel_file, char *kernel_name,
 	}
 
 	// Build the program executable
-	err = clBuildProgram(program, 0, NULL, "-cl-std=CL2.0", NULL, NULL);
+	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
 	if (err != CL_SUCCESS)
 	{
 		printf("Could not build transpose program, code: %d\n", err);

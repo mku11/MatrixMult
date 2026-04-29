@@ -45,17 +45,17 @@ void printUsage(char *exename);
 const enum GenType GEN_TYPE = GEN_INCR;
 
 // Default Dimensions
-int M = 512 * 10 + 42;
-int K = 512 * 10 + 66;
-int N = 512 * 10 + 1;
+// int M = 512 * 10 + 42;
+// int K = 512 * 10 + 66;
+// int N = 512 * 10 + 1;
 // Even - no padding
 // int M = 512*8;
 // int K = 512*8;
 // int N = 512*8;
 // Small
-// int M = 512+42;
-// int K = 512+66;
-// int N = 512+1;
+int M = 512+42;
+int K = 512+66;
+int N = 512+1;
 // Or use random sizes
 bool USE_RAND_SIZES = false;
 const int RAND_MIN_SIZE = 128;
@@ -64,13 +64,12 @@ const int RAND_MAX_SIZE = 4096;
 const int TRIALS = 1;
 
 // validate with correct results
-bool validate_results = false;
-// bool validate_results = true;
+bool validate_results = true;
 
-bool use_simple_matmult = false;
+bool use_simple_matmult = true;
 bool use_tiling_matmult = true;
-bool use_tiling_colmaj_matmult = false;
-bool use_tiling_colmaj_padded_matmult= false;
+bool use_tiling_colmaj_matmult = true;
+bool use_tiling_colmaj_padded_matmult= true;
 
 bool print_mat = false;
 bool enable_log = false;

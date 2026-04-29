@@ -25,7 +25,7 @@ SOFTWARE.
 // Simple transpose kernel for a P * Q matrix
 __kernel void transpose(
                         const __global float* input,
-                        __global float* output) {{
+                        __global float* output) {
 	int row = get_global_id(0);
 	int col = get_global_id(1);
 	
@@ -36,4 +36,4 @@ __kernel void transpose(
 	int nIdx = col * M2 + row;
 
 	output[nIdx] = input[idx];
-}}
+}
