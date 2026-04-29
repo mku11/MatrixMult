@@ -73,7 +73,7 @@ void openclMatMultSimple(MatMultDims dims, float *a, float *b, float *c)
 
 	start = gettime();
 
-	cl_mult(KERNEL_DIR "kernel_matmult.cl", "matmult_simple",
+	cl_mult(KERNEL_DIR "kernel_matmult.c", "matmult_simple",
 			dims,
 			a, b, c,
 			NULL,
@@ -99,7 +99,7 @@ void openclMatMultBlock(MatMultDims dims, float *a, float *b, float *c)
 	else
 		set_default_tiling_params(&tile_params);
 
-	cl_mult(KERNEL_DIR "kernel_matmult_tiling.cl", "matmult_block",
+	cl_mult(KERNEL_DIR "kernel_matmult_tiling.c", "matmult_block",
 			dims,
 			a, b, c,
 			NULL,
@@ -132,7 +132,7 @@ void openclMatMultTilingColMajor(MatMultDims dims, float *a, float *b, float *c)
 	if (use_cl_transpose)
 	{
 		d_at = clCreateBuffer(context, CL_MEM_WRITE_ONLY, transpose_size, NULL, NULL);
-		cl_transpose(KERNEL_DIR "kernel_transpose.cl", "transpose",
+		cl_transpose(KERNEL_DIR "kernel_transpose.c", "transpose",
 					 transpose_dims, a, d_at);
 
 		if (validate_transpose_results || print_temp_mat)
@@ -167,7 +167,7 @@ void openclMatMultTilingColMajor(MatMultDims dims, float *a, float *b, float *c)
 	else
 		set_default_tiling_params(&tile_params);
 
-	cl_mult(KERNEL_DIR "kernel_matmult_tiling_colmajor.cl", "matmult_block_colmajor",
+	cl_mult(KERNEL_DIR "kernel_matmult_tiling_colmajor.c", "matmult_block_colmajor",
 			dims,
 			at, b, c, d_at,
 			true, &tile_params);
@@ -178,7 +178,7 @@ void openclMatMultTilingColMajor(MatMultDims dims, float *a, float *b, float *c)
 	double dtime = difftime(end, start) / 1e9;
 	printf("total estimated FLOPs: %llu\n", FLOPs);
 	printf("total time to transpose (secs): %.3lf\n", difft);
-	printf("total extra mem used: %lld\n", dims.k * dims.m * sizeof(*a));
+	printf("total extra mem used: %zud\n", dims.k * dims.m * sizeof(*a));
 	printf("total time for openclMatMultTilingColMajor (secs): %.3lf, total GFLOPS: %.2lf\n", dtime,
 		   FLOPs * 1e-9 / dtime);
 }
@@ -211,7 +211,7 @@ void openclMatMultTilingColMajorPadded(MatMultDims dims, float *a, float *b, flo
 	if (use_cl_transpose)
 	{
 		d_at = clCreateBuffer(context, CL_MEM_WRITE_ONLY, padded_size, NULL, NULL);
-		cl_transpose(KERNEL_DIR "kernel_transpose.cl", "transpose",
+		cl_transpose(KERNEL_DIR "kernel_transpose.c", "transpose",
 					 transpose_dims,
 					 a, d_at);
 		if (validate_transpose_results)
@@ -257,7 +257,7 @@ void openclMatMultTilingColMajorPadded(MatMultDims dims, float *a, float *b, flo
 	padded_dims.m = paddedm;
 	padded_dims.k = paddedk;
 	padded_dims.n = paddedn;
-	cl_mult(KERNEL_DIR "kernel_matmult_tiling_colmajor_padded.cl", "matmult_block_colmajor_padded",
+	cl_mult(KERNEL_DIR "kernel_matmult_tiling_colmajor_padded.c", "matmult_block_colmajor_padded",
 			padded_dims,
 			aTpadded,
 			bpadded ? bpadded : b,
@@ -285,7 +285,7 @@ void openclMatMultTilingColMajorPadded(MatMultDims dims, float *a, float *b, flo
 	double dtime = difftime(end, start) / 1e9;
 	printf("total estimated FLOPs: %llu\n", FLOPs);
 	printf("total time to transpose and pad (secs): %.3lf\n", difft);
-	printf("total extra mem used: %lld\n", (paddedk * paddedm + paddedk * paddedn + paddedm * paddedn) * sizeof(*a));
+	printf("total extra mem used: %zu\n", (paddedk * paddedm + paddedk * paddedn + paddedm * paddedn) * sizeof(*a));
 	printf("total time for openclMatMultTilingColMajorPadded (secs): %.3lf, total GFLOPS: %.2lf\n", dtime,
 		   FLOPs * 1e-9 / dtime);
 }
@@ -462,8 +462,8 @@ int cl_mult(char *kernel_file, char *kernel_name,
 		printf("Work items for dim N, WIN=%d\n", tile_params->WIN);
 	}
 
-	printf("local_size: %lld:%lld, global_size: %lld:%lld\r\n", local[0], local[1], global[0], global[1]);
-	printf("total workgroups to submit: %lld * %lld = %lld\n", global[0] / local[0], global[1] / local[1], global[0] / local[0] * global[1] / local[1]);
+	printf("local_size: %zu:%zu, global_size: %zu:%zu\r\n", local[0], local[1], global[0], global[1]);
+	printf("total workgroups to submit: %zu * %zu = %zu\n", global[0] / local[0], global[1] / local[1], global[0] / local[0] * global[1] / local[1]);
 
 	printf("exec kernel\n");
 	// printf("exec kernel: %s\r\n", kernel_name);
@@ -578,7 +578,7 @@ int cl_transpose(char *kernel_file, char *kernel_name,
 	}
 
 	// Build the program executable
-	err = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
+	err = clBuildProgram(program, 0, NULL, "-cl-std=CL2.0", NULL, NULL);
 	if (err != CL_SUCCESS)
 	{
 		printf("Could not build transpose program, code: %d\n", err);
