@@ -45,7 +45,7 @@ void transpose(MatTransposeDims dims, float *mat, float *mat2)
 		for (int j = 0; j < dims.n; j++)
 		{
 			// printf("%d => %d\n", i*sizeB + j, j*sizeA2 + i);
-			*(mat2 + j * dims.tn + i) = *(mat + i * dims.tm + j);
+			*(mat2 + j * dims.tn + i) = *(mat + i * dims.n + j);
 		}
 	}
 }
